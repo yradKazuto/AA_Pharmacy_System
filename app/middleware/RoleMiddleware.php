@@ -75,15 +75,19 @@ class RoleMiddleware extends Controller
             return false;
         }
 
-        // Simple permission mapping based on role
         $userModel = new User();
         $user = $userModel->find($_SESSION['user_id']);
-
         if (!$user) {
             return false;
         }
 
-        $roleName = strtolower($user['role_name']);
+        $roleModel = new Role();
+        $userRole = $roleModel->find($user['role_id']);
+        if (!$userRole) {
+            return false;
+        }
+
+        $roleName = strtolower($userRole['name']);
 
         // Define role permissions
         $permissions = [

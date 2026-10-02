@@ -55,7 +55,98 @@ function runSeeders() {
         echo "Admin already exists. Skipped.\n";
     }
 
+    seedInventory($db);
+
     echo "Seeding completed successfully.\n";
+}
+
+/**
+ * Seed sample products, batches, and inventory movements (idempotent).
+ * Includes FEFO-targeted fixtures: one product with multiple batches at
+ * different expiry dates (one EXPIRED, one near-expiry), plus a low-stock
+ * product. Every received batch logs an inventory_movements row (rule 4).
+ */
+function seedInventory($db) {
+    // Check if products were already seeded
+    $exists = $db->query("SELECT COUNT(*) FROM products")->fetchColumn();
+    if ($exists > 0) {
+        echo "Products already seeded. Skipped.\n";
+        return;
+    }
+
+    echo "Seeding products and batches... ";
+
+    $products = [
+        // name, generic_name, category, unit, unit_price, requires_prescription
+        ['Paracetamol 500mg', 'Paracetamol', 'Tablet', 'tablet', 5.00, 0],
+        ['Amoxicillin 500mg', 'Amoxicillin', 'Antibiotic', 'capsule', 35.00, 1],
+        ['Cetirizine 10mg', 'Cetirizine', 'Antihistamine', 'tablet', 8.00, 0],
+        ['Oral Rehydration Salts', 'ORS', 'Oral Solution', 'sachet', 15.00, 0],
+        ['Salbutamol Inhaler', 'Salbutamol', 'Respiratory', 'inhaler', 250.00, 1],
+    ];
+
+    // INSERT products, keep product_id -> name map for batch linking
+    $productStmt = $db->prepare(
+        "INSERT INTO products (name, generic_name, category, unit, unit_price, requires_prescription)
+         VALUES (?, ?, ?, ?, ?, ?)"
+    );
+    $productIds = [];
+    foreach ($products as $p) {
+        $productStmt->execute($p);
+        $productIds[$p[0]] = $db->lastInsertId();
+    }
+
+    // sample batches per product:
+    // product => [ [lot, expiry, qty, cost, supplier], ... ]
+    // Paracetamol gets multiple batches (FEFO test) incl. one EXPIRED and one near-expiry.
+    $today = date('Y-m-d');
+    $in30 = date('Y-m-d', strtotime('+30 days'));
+    $far  = date('Y-m-d', strtotime('+180 days'));
+    $expired = date('Y-m-d', strtotime('-10 days'));
+
+    $batches = [
+        'Paracetamol 500mg' => [
+            // expired batch (never sellable)
+            ['EXP-0001', $expired, 50, 3.00, 'MedSupply Co.'],
+            // near-expiry batch (still sellable today, flagged by alerts)
+            ['LOT-0002', $in30, 100, 3.20, 'MedSupply Co.'],
+            // far-future batch (FEFO should prefer LOT-0002 first, not this one)
+            ['LOT-0003', $far, 200, 3.40, 'PharmaDist Inc.'],
+        ],
+        'Amoxicillin 500mg' => [
+            ['AMX-0001', $far, 120, 22.00, 'PharmaDist Inc.'],
+        ],
+        'Cetirizine 10mg' => [
+            ['CET-0001', $far, 8, 4.50, 'MedSupply Co.'], // LOW STOCK (<=10)
+        ],
+        'Oral Rehydration Salts' => [
+            ['ORS-0001', $far, 300, 8.00, 'GlobalCare Ltd.'],
+        ],
+        'Salbutamol Inhaler' => [
+            ['SAL-0001', $far, 40, 160.00, 'PharmaDist Inc.'],
+        ],
+    ];
+
+    $batchStmt = $db->prepare(
+        "INSERT INTO batches (product_id, lot_number, expiry_date, quantity, unit_cost, supplier, received_date)
+         VALUES (?, ?, ?, ?, ?, ?, ?)"
+    );
+    $movementStmt = $db->prepare(
+        "INSERT INTO inventory_movements (product_id, batch_id, movement_type, quantity_change, unit_cost, notes)
+         VALUES (?, ?, 'receive', ?, ?, ?)"
+    );
+
+    foreach ($batches as $productName => $rows) {
+        $pid = $productIds[$productName];
+        foreach ($rows as $b) {
+            $batchStmt->execute([$pid, $b[0], $b[1], $b[2], $b[3], $b[4], $today]);
+            $batchId = $db->lastInsertId();
+            // Rule 4: every stock change creates a movement row
+            $movementStmt->execute([$pid, $batchId, $b[2], $b[3], "Initial stock for lot {$b[0]}"]);
+        }
+    }
+
+    echo "Done.\n";
 }
 
 try {

@@ -71,6 +71,67 @@ function runMigrations() {
     $db->exec($sqlLogs);
     echo "Done.\n";
 
+    // 4. Create Products Table
+    echo "Creating products table... ";
+    $sqlProducts = "CREATE TABLE IF NOT EXISTS products (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        generic_name VARCHAR(100) NULL,
+        category VARCHAR(50) NULL,
+        unit VARCHAR(20) NOT NULL DEFAULT 'pc',
+        unit_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+        requires_prescription TINYINT(1) DEFAULT 0,
+        is_active TINYINT(1) DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX (name)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlProducts);
+    echo "Done.\n";
+
+    // 5. Create Batches Table (stock tracked by batch; FEFO index on expiry_date)
+    echo "Creating batches table... ";
+    $sqlBatches = "CREATE TABLE IF NOT EXISTS batches (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        product_id INT NOT NULL,
+        lot_number VARCHAR(50) NOT NULL,
+        expiry_date DATE NOT NULL,
+        quantity INT NOT NULL DEFAULT 0,
+        unit_cost DECIMAL(10,2) NOT NULL DEFAULT 0,
+        supplier VARCHAR(100) NULL,
+        received_date DATE NULL,
+        is_active TINYINT(1) DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (product_id) REFERENCES products(id),
+        INDEX (expiry_date),
+        INDEX (product_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlBatches);
+    echo "Done.\n";
+
+    // 6. Create Inventory Movements Table (rule: every stock change logs a movement)
+    echo "Creating inventory_movements table... ";
+    $sqlMovements = "CREATE TABLE IF NOT EXISTS inventory_movements (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        product_id INT NOT NULL,
+        batch_id INT NULL,
+        movement_type VARCHAR(20) NOT NULL,
+        quantity_change INT NOT NULL,
+        unit_cost DECIMAL(10,2) NULL,
+        reference VARCHAR(50) NULL,
+        user_id INT NULL,
+        notes VARCHAR(255) NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (product_id) REFERENCES products(id),
+        FOREIGN KEY (batch_id) REFERENCES batches(id),
+        INDEX (created_at),
+        INDEX (product_id),
+        INDEX (batch_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlMovements);
+    echo "Done.\n";
+
     echo "All migrations completed successfully.\n";
 }
 

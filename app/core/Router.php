@@ -123,4 +123,16 @@ class Router
 
         call_user_func_array([$controllerInstance, $method], $params);
     }
+
+    /**
+     * Redirect the client to a URL.
+     *
+     * @param string $url
+     * @return void
+     */
+    public function redirect($url)
+    {
+        header("Location: " . $url);
+        exit;
+    }
 }

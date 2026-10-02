@@ -27,6 +27,24 @@ $router->get('/roles/{id}/edit', 'RoleController@edit');
 $router->post('/roles/{id}', 'RoleController@update');
 $router->post('/roles/{id}/delete', 'RoleController@destroy');
 
+// Product Routes (inventory:view read, inventory:edit mutations)
+$router->get('/products', 'ProductController@index');
+$router->get('/products/create', 'ProductController@create');
+$router->post('/products', 'ProductController@store');
+$router->get('/products/{id}/edit', 'ProductController@edit');
+$router->post('/products/{id}', 'ProductController@update');
+$router->post('/products/{id}/delete', 'ProductController@destroy');
+
+// Batch Routes (receive stock / retire batch)
+$router->get('/products/{id}/batches', 'BatchController@index');
+$router->post('/products/{id}/batches', 'BatchController@store');
+$router->post('/batches/{id}/delete', 'BatchController@destroy');
+
+// Inventory Routes
+$router->get('/inventory', 'InventoryController@index');
+$router->get('/inventory/alerts', 'InventoryController@alerts');
+$router->post('/inventory/batches/{id}/adjust', 'InventoryController@adjust');
+
 // Dashboard Routes (will be implemented in later phases)
 // All dashboards require authentication
 use App\Middleware\AuthMiddleware;
