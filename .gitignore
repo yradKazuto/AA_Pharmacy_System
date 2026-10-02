@@ -1,0 +1,30 @@
+# PHP
+vendor/
+composer.lock
+
+# Local configuration / secrets (never commit real credentials)
+# Note: config/database.php is intentionally COMMITTED — it holds only
+# non-sensitive localhost XAMPP defaults (root/empty). If you later put real
+# credentials here, move them to a .env / config/database.local.php and
+# gitignore THAT instead.
+*.local.php
+
+# Environment
+.env
+.env.*
+
+# XAMPP / Apache
+*.log
+error_log
+
+# Uploaded files (runtime)
+storage/uploads/*
+!storage/uploads/.gitkeep
+
+# OS / editor
+Thumbs.db
+.DS_Store
+*.swp
+
+# Build artifacts
+*.cache
