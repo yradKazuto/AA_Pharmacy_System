@@ -1,0 +1,19 @@
+# Auto-detect and normalize line endings
+
+# Keep all files in LF internally (git stores LF, OS normalizes)
+* text=auto
+
+# Force explicit types that git might mis-detect on Windows
+*.php    text eol=lf
+*.css    text eol=lf
+*.js     text eol=lf
+*.html   text eol=lf
+*.md     text eol=lf
+
+# Binary files — never attempt to normalize
+*.png    binary
+*.jpg    binary
+*.gif    binary
+*.ico    binary
+*.pdf    binary
+*.zip    binary

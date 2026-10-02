@@ -1,4 +1,8 @@
-## Phase 1: User Management - Progress Summary ✅
+# Phase 1: User Management - Progress Summary ✅
+
+> **STATUS: PHASE 1 COMPLETE, COMMITTED, AND PUSHED. VERIFIED END-TO-END.**
+> Next: Phase 3 (Products, batches, inventory, FEFO, alerts).
+> This document is the single source of truth — no need to re-verify the below from scratch.
 
 ### Database
 - ✅ `database/create_db.php` - Creates the `aa_pharmacy` database if it does not exist
@@ -84,3 +88,43 @@ All Phase 1 features were tested end-to-end via the running dev server with curl
 ### Security fixes applied
 - **`RoleMiddleware::requireRole()`** now redirects unauthenticated users to `/login` (was `/unauthorized`). Existing role-mismatch still → `/unauthorized`.
 - **Dashboard routes** now each call `AuthMiddleware::guard()` (were unprotected; unauthenticated could view dashboards).
+
+---
+
+## Version Control & Git Status (2026-10-02)
+
+**Repo initialized and pushed to GitHub.**
+- Remote: `origin` → `https://github.com/yradKazuto/AA_Pharmacy_System.git`
+- Author (repo-local): `yradKazuto` <yradaudrey@gmail.com>
+- Branch strategy: `main` (stable) ← merge from `dev` (working) after each phase.
+
+### Current state
+| Branch | Commit | Pushed? | Notes |
+|---|---|---|---|
+| `dev` | `b633182` "Phase 1: auth, users, roles, audit logging" | ✅ origin/dev | Working branch — all future phases land here |
+| `main` | `b633182` (same as dev for now) | ✅ origin/main | Stable. Merge dev→main after each verified phase |
+
+- `.gitignore` — ignores uploads (tracks only `storage/uploads/.gitkeep`), vendor, logs, editor cruft.
+- `.gitattributes` — pins `eol=lf` for source/text files to stop Windows CRLF churn.
+- `config/database.php` is **committed by explicit user decision (option A)** — it contains non-sensitive localhost XAMPP defaults only. If real credentials are ever added, gitignore a `.local.php`/`.env` instead. (See `.gitignore` note.)
+- Working tree is clean.
+
+### Post-verification cleanup applied (2026-10-02)
+- **Dead role-delete button fixed**: added `POST /roles/{id}/delete` route + `RoleController::destroy()` (soft-deactivate, guarded against deactivating a role still in use). Verified live via curl: in-use role blocked, unused role deactivates and writes `audit_logs` `role_delete` row.
+- **`password_recovery.php`** — fixed `<p>` tag closed with `</div>` → `</p>`.
+- **Removed inert Laravel-style stubs** `database/migrations/` and `database/seeders/` (they imported `Illuminate\...` but were never executed). Real provisioning is `database/create_db.php` → `migrate.php` → `seed.php` (raw PDO). **Run in that order.**
+- Added `docs/PLAN.md` (project plan + branch strategy + phase tracker) and `docs/` dir.
+
+### How to run (XAMPP local)
+```bash
+php database/create_db.php   # creates aa_pharmacy DB
+php database/migrate.php     # creates roles, users, audit_logs tables
+php database/seed.php        # seeds roles + admin (admin / Admin@1234)
+php -S localhost:8000 -t public   # dev server (root public/)
+```
+Dev server was used for end-to-end verification. MySQL runs on 127.0.0.1:3306 (root/empty).
+
+### Test credentials (from seeder + verification)
+- Admin: `admin` / `Admin@1234` (COMPANY_ID `ADMIN-0001`)
+- Cashier: `cashier1` — password was **reset by the recovery test** (see memory note)
+- Pharmacist: `pharmacist1`
