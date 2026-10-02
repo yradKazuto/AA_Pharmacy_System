@@ -99,7 +99,7 @@ Default admin login: `admin` / `Admin@1234` (COMPANY_ID: `ADMIN-0001`)
 
 1. **Phase 1** ✅ — Project setup + DB schema/migrations, Auth, roles, audit logging
 2. **Phase 2** — (reserved)
-3. **Phase 3** — Products, batches, inventory, FEFO, expiry alerts
+3. **Phase 3** ✅ — Products, batches, inventory, FEFO, expiry alerts
 4. **Phase 4** — Suppliers, purchasing, receiving
 5. **Phase 5** — POS (point-of-sale)
 6. **Phase 6** — Reports + dashboard
@@ -114,7 +114,7 @@ Default admin login: `admin` / `Admin@1234` (COMPANY_ID: `ADMIN-0001`)
 |---|---|---|---|
 | 1 — Auth, Users, Roles | ✅ Done + Pushed | `b633182` on `dev` | Login, RBAC, audit, Company ID, admin password recovery; verified end-to-end |
 | 2 — Reserved | ⬜ Not started | — | — |
-| 3 — Products/Batches/Inventory | ⬜ Not started | — | — |
+| 3 — Products/Batches/Inventory | ✅ Done + Pushed | `5b505ff` on `main` | Product/Batch/Inventory CRUD, FEFO StockService, expiry alerts; 22-check tests; fixed Router redirect + RoleMiddleware role_name bug |
 | 4 — Suppliers/Purchasing | ⬜ Not started | — | — |
 | 5 — POS | ⬜ Not started | — | — |
 | 6 — Reports/Dashboard | ⬜ Not started | — | — |
