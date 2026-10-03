@@ -55,9 +55,31 @@ function runSeeders() {
         echo "Admin already exists. Skipped.\n";
     }
 
+    seedSuppliers($db);
     seedInventory($db);
 
     echo "Seeding completed successfully.\n";
+}
+
+/**
+ * Seed sample suppliers (idempotent).
+ */
+function seedSuppliers($db) {
+    $exists = $db->query("SELECT COUNT(*) FROM suppliers")->fetchColumn();
+    if ($exists > 0) {
+        echo "Suppliers already seeded. Skipped.\n";
+        return;
+    }
+
+    echo "Seeding suppliers... ";
+    $stmt = $db->prepare(
+        "INSERT INTO suppliers (name, contact_person, phone, email, address)
+         VALUES (?, ?, ?, ?, ?)"
+    );
+    $stmt->execute(['MedSupply Co.', 'R. Santos', '+63 917 555 0101', 'sales@medsupply.ph', 'Zamboanga City']);
+    $stmt->execute(['PharmaDist Inc.', 'L. Fernandez', '+63 918 555 0202', 'orders@pharmadist.ph', 'Manila']);
+    $stmt->execute(['GlobalCare Ltd.', 'J. Reyes', '+63 919 555 0303', 'contact@globalcare.ph', 'Cebu City']);
+    echo "Done.\n";
 }
 
 /**

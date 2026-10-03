@@ -45,6 +45,24 @@ $router->get('/inventory', 'InventoryController@index');
 $router->get('/inventory/alerts', 'InventoryController@alerts');
 $router->post('/inventory/batches/{id}/adjust', 'InventoryController@adjust');
 
+// Supplier Routes (purchasing:view read, purchasing:edit mutations)
+$router->get('/suppliers', 'SupplierController@index');
+$router->get('/suppliers/create', 'SupplierController@create');
+$router->post('/suppliers', 'SupplierController@store');
+$router->get('/suppliers/{id}/edit', 'SupplierController@edit');
+$router->post('/suppliers/{id}', 'SupplierController@update');
+$router->post('/suppliers/{id}/delete', 'SupplierController@destroy');
+
+// Purchase Order Routes
+$router->get('/purchases', 'PurchaseOrderController@index');
+$router->get('/purchases/create', 'PurchaseOrderController@create');
+$router->post('/purchases', 'PurchaseOrderController@store');
+$router->get('/purchases/suggestions', 'PurchaseOrderController@suggestions');
+$router->get('/purchases/{id}', 'PurchaseOrderController@show');
+$router->get('/purchases/{id}/receive', 'PurchaseOrderController@receive');
+$router->post('/purchases/{id}/receive', 'PurchaseOrderController@storeReceive');
+$router->post('/purchases/{id}/cancel', 'PurchaseOrderController@cancel');
+
 // Dashboard Routes (will be implemented in later phases)
 // All dashboards require authentication
 use App\Middleware\AuthMiddleware;

@@ -132,6 +132,67 @@ function runMigrations() {
     $db->exec($sqlMovements);
     echo "Done.\n";
 
+    // Phase 4: 7. Create Suppliers Table
+    echo "Creating suppliers table... ";
+    $sqlSuppliers = "CREATE TABLE IF NOT EXISTS suppliers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        contact_person VARCHAR(100) NULL,
+        phone VARCHAR(30) NULL,
+        email VARCHAR(100) NULL,
+        address VARCHAR(255) NULL,
+        is_active TINYINT(1) DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX (name)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlSuppliers);
+    echo "Done.\n";
+
+    // Phase 4: 8. Create Purchase Orders Table
+    echo "Creating purchase_orders table... ";
+    $sqlPOs = "CREATE TABLE IF NOT EXISTS purchase_orders (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        po_number VARCHAR(30) NOT NULL UNIQUE,
+        supplier_id INT NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'ordered',
+        order_date DATE NULL,
+        expected_date DATE NULL,
+        notes VARCHAR(255) NULL,
+        created_by INT NULL,
+        received_by INT NULL,
+        received_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
+        FOREIGN KEY (created_by) REFERENCES users(id),
+        FOREIGN KEY (received_by) REFERENCES users(id),
+        INDEX (po_number),
+        INDEX (supplier_id),
+        INDEX (status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlPOs);
+    echo "Done.\n";
+
+    // Phase 4: 9. Create Purchase Order Items Table
+    echo "Creating purchase_order_items table... ";
+    $sqlPOItems = "CREATE TABLE IF NOT EXISTS purchase_order_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        purchase_order_id INT NOT NULL,
+        product_id INT NOT NULL,
+        quantity_ordered INT NOT NULL DEFAULT 0,
+        quantity_received INT NOT NULL DEFAULT 0,
+        unit_cost DECIMAL(10,2) NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (purchase_order_id) REFERENCES purchase_orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id),
+        INDEX (purchase_order_id),
+        INDEX (product_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlPOItems);
+    echo "Done.\n";
+
     echo "All migrations completed successfully.\n";
 }
 
