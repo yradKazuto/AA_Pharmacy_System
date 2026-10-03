@@ -101,7 +101,7 @@ Default admin login: `admin` / `Admin@1234` (COMPANY_ID: `ADMIN-0001`)
 2. **Phase 2** — (reserved)
 3. **Phase 3** ✅ — Products, batches, inventory, FEFO, expiry alerts
 4. **Phase 4** ✅ — Suppliers, purchasing, receiving
-5. **Phase 5** — POS (point-of-sale)
+5. **Phase 5** ✅ — POS (point-of-sale)
 6. **Phase 6** — Reports + dashboard
 7. **Phase 7** — Online ordering + delivery
 8. **Phase 8** — Integration and security testing
@@ -116,7 +116,7 @@ Default admin login: `admin` / `Admin@1234` (COMPANY_ID: `ADMIN-0001`)
 | 2 — Reserved | ⬜ Not started | — | — |
 | 3 — Products/Batches/Inventory | ✅ Done + Pushed | `5b505ff` on `main` | Product/Batch/Inventory CRUD, FEFO StockService, expiry alerts; 22-check tests; fixed Router redirect + RoleMiddleware role_name bug |
 | 4 — Suppliers/Purchasing | ✅ Done + Pushed | `dev` | Suppliers CRUD, PurchaseOrders + line items, reorder suggestions (recommend-only), whole-PO receiving in ONE transaction; 31-check tests |
-| 5 — POS | ⬜ Not started | — | — |
+| 5 — POS | ✅ Done + Pushed | `dev` | POS terminal, FEFO batch deduction, sales + sale_items (batch per line), cash/GCash/card, change, void-restores-stock; sale + deductions in ONE transaction; 34-check tests |
 | 6 — Reports/Dashboard | ⬜ Not started | — | — |
 | 7 — Online Ordering | ⬜ Not started | — | — |
 | 8 — Integration/Security | ⬜ Not started | — | — |

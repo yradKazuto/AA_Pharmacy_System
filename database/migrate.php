@@ -193,6 +193,57 @@ function runMigrations() {
     $db->exec($sqlPOItems);
     echo "Done.\n";
 
+    // Phase 5: 10. Create Sales Table (POS)
+    echo "Creating sales table... ";
+    $sqlSales = "CREATE TABLE IF NOT EXISTS sales (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        sale_number VARCHAR(30) NOT NULL UNIQUE,
+        customer_name VARCHAR(100) NULL,
+        subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
+        discount DECIMAL(10,2) NOT NULL DEFAULT 0,
+        total_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+        payment_method VARCHAR(20) NOT NULL DEFAULT 'cash',
+        amount_tendered DECIMAL(10,2) NULL,
+        change_due DECIMAL(10,2) NULL,
+        sold_by INT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'completed',
+        voided_by INT NULL,
+        voided_at TIMESTAMP NULL,
+        sale_date DATE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (sold_by) REFERENCES users(id),
+        FOREIGN KEY (voided_by) REFERENCES users(id),
+        INDEX (sale_date),
+        INDEX (status),
+        INDEX (sold_by)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlSales);
+    echo "Done.\n";
+
+    // Phase 5: 11. Create Sale Items Table (records the batch each line drew from)
+    echo "Creating sale_items table... ";
+    $sqlSaleItems = "CREATE TABLE IF NOT EXISTS sale_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        sale_id INT NOT NULL,
+        product_id INT NOT NULL,
+        batch_id INT NULL,
+        quantity INT NOT NULL,
+        unit_cost DECIMAL(10,2) NOT NULL DEFAULT 0,
+        unit_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+        line_total DECIMAL(10,2) NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id),
+        FOREIGN KEY (batch_id) REFERENCES batches(id),
+        INDEX (sale_id),
+        INDEX (product_id),
+        INDEX (batch_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlSaleItems);
+    echo "Done.\n";
+
     echo "All migrations completed successfully.\n";
 }
 

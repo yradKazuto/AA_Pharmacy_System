@@ -63,6 +63,14 @@ $router->get('/purchases/{id}/receive', 'PurchaseOrderController@receive');
 $router->post('/purchases/{id}/receive', 'PurchaseOrderController@storeReceive');
 $router->post('/purchases/{id}/cancel', 'PurchaseOrderController@cancel');
 
+// POS / Sale Routes (pos:process, void requires inventory:edit per controller)
+$router->get('/pos', 'SaleController@index');
+$router->get('/pos/search', 'SaleController@search');
+$router->get('/pos/sales', 'SaleController@list');
+$router->post('/pos/checkout', 'SaleController@store');
+$router->get('/sales/{id}', 'SaleController@show');
+$router->post('/sales/{id}/void', 'SaleController@void');
+
 // Dashboard Routes (will be implemented in later phases)
 // All dashboards require authentication
 use App\Middleware\AuthMiddleware;
