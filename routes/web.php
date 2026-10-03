@@ -71,40 +71,34 @@ $router->post('/pos/checkout', 'SaleController@store');
 $router->get('/sales/{id}', 'SaleController@show');
 $router->post('/sales/{id}/void', 'SaleController@void');
 
-// Dashboard Routes (will be implemented in later phases)
-// All dashboards require authentication
-use App\Middleware\AuthMiddleware;
-
+// Dashboard Routes (real per-role dashboards, Phase 6)
 $router->get('/dashboard', function() {
-    AuthMiddleware::guard();
-    echo "<h1>Dashboard</h1>";
-    echo "<p>Welcome to the dashboard. Implement dashboard views in later phases.</p>";
+    // Redirect to the caller's role dashboard (guessing from session on the '/' lander
+    // is handled there; here just bounce authenticated users to their role page).
+    $role = $_SESSION['role'] ?? 'guest';
+    $path = in_array($role, ['admin', 'pharmacist', 'cashier', 'customer']) ? "/{$role}/dashboard" : '/login';
+    header("Location: " . $path);
+    exit;
 });
 
-// Role-specific dashboards (placeholders)
-$router->get('/admin/dashboard', function() {
-    AuthMiddleware::guard();
-    echo "<h1>Admin Dashboard</h1>";
-    echo "<p>Admin dashboard view.</p>";
-});
+$router->get('/admin/dashboard', 'DashboardController@admin');
+$router->get('/pharmacist/dashboard', 'DashboardController@pharmacist');
+$router->get('/cashier/dashboard', 'DashboardController@cashier');
 
-$router->get('/pharmacist/dashboard', function() {
-    AuthMiddleware::guard();
-    echo "<h1>Pharmacist Dashboard</h1>";
-    echo "<p>Pharmacist dashboard view.</p>";
-});
-
-$router->get('/cashier/dashboard', function() {
-    AuthMiddleware::guard();
-    echo "<h1>Cashier Dashboard</h1>";
-    echo "<p>Cashier dashboard view.</p>";
-});
+// Customer dashboard stays a placeholder until Phase 7 (online ordering).
+use App\Middleware\AuthMiddleware;
 
 $router->get('/customer/dashboard', function() {
     AuthMiddleware::guard();
     echo "<h1>Customer Dashboard</h1>";
-    echo "<p>Customer dashboard view (online ordering portal).</p>";
+    echo "<p>Customer dashboard view (online ordering portal in Phase 7).</p>";
 });
+
+// Report Routes (reports:view; read-only)
+$router->get('/reports', 'ReportController@index');
+$router->get('/reports/sales', 'ReportController@sales');
+$router->get('/reports/valuation', 'ReportController@valuation');
+$router->get('/reports/movements', 'ReportController@movements');
 
 // Unauthorized access page
 $router->get('/unauthorized', function() {
