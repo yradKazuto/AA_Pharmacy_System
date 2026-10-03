@@ -244,6 +244,67 @@ function runMigrations() {
     $db->exec($sqlSaleItems);
     echo "Done.\n";
 
+    // Phase 7: 12. Create Customer Orders Table (online ordering portal)
+    echo "Creating customer_orders table... ";
+    $sqlCustomerOrders = "CREATE TABLE IF NOT EXISTS customer_orders (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        order_number VARCHAR(30) NOT NULL UNIQUE,
+        customer_id INT NOT NULL,
+        customer_name VARCHAR(100) NULL,
+        delivery_address VARCHAR(255) NULL,
+        phone VARCHAR(30) NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending_review',
+        items_total DECIMAL(10,2) NOT NULL DEFAULT 0,
+        delivery_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
+        total_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+        payment_method VARCHAR(20) NOT NULL DEFAULT 'cod',
+        notes VARCHAR(255) NULL,
+        requires_review TINYINT(1) DEFAULT 0,
+        rejected_note VARCHAR(255) NULL,
+        approved_by INT NULL,
+        approved_at TIMESTAMP NULL,
+        fulfilled_by INT NULL,
+        fulfilled_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (customer_id) REFERENCES users(id),
+        FOREIGN KEY (approved_by) REFERENCES users(id),
+        FOREIGN KEY (fulfilled_by) REFERENCES users(id),
+        INDEX (order_number),
+        INDEX (customer_id),
+        INDEX (status),
+        INDEX (created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlCustomerOrders);
+    echo "Done.\n";
+
+    // Phase 7: 13. Create Customer Order Items Table
+    echo "Creating customer_order_items table... ";
+    $sqlCustomerOrderItems = "CREATE TABLE IF NOT EXISTS customer_order_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        customer_order_id INT NOT NULL,
+        product_id INT NOT NULL,
+        product_name VARCHAR(100) NOT NULL,
+        quantity INT NOT NULL,
+        unit_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+        line_total DECIMAL(10,2) NOT NULL DEFAULT 0,
+        batch_id INT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (customer_order_id) REFERENCES customer_orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id),
+        FOREIGN KEY (batch_id) REFERENCES batches(id),
+        INDEX (customer_order_id),
+        INDEX (product_id),
+        INDEX (batch_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    $db->exec($sqlCustomerOrderItems);
+    echo "Done.\n";
+
+    // Later phases note: order fulfillment also inserts into sales/sale_items
+    // so online revenue flows into the same reports (rule 10). No schema needed
+    // beyond the existing sales tables.
+
     echo "All migrations completed successfully.\n";
 }
 

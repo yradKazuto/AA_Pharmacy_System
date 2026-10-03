@@ -71,6 +71,23 @@ $router->post('/pos/checkout', 'SaleController@store');
 $router->get('/sales/{id}', 'SaleController@show');
 $router->post('/sales/{id}/void', 'SaleController@void');
 
+// Customer Shop / Online Ordering Routes (Phase 7)
+// catalog:view / orders:create / orders:view_own
+$router->get('/shop', 'CustomerCatalogController@index');
+$router->get('/cart', 'CustomerOrderController@cart');
+$router->get('/checkout', 'CustomerOrderController@checkout');
+$router->post('/checkout', 'CustomerOrderController@place');
+$router->get('/orders', 'CustomerOrderController@myOrders');
+$router->get('/orders/{id}', 'CustomerOrderController@show');
+$router->post('/orders/{id}/cancel', 'CustomerOrderController@cancel');
+
+// Online Order Review & Fulfillment Routes (orders:review — pharmacist/admin)
+$router->get('/orders/review', 'OrderAdminController@reviewQueue');
+$router->post('/orders/{id}/approve', 'OrderAdminController@approve');
+$router->post('/orders/{id}/reject', 'OrderAdminController@reject');
+$router->post('/orders/{id}/fulfill', 'OrderAdminController@fulfill');
+$router->post('/orders/{id}/deliver', 'OrderAdminController@deliver');
+
 // Dashboard Routes (real per-role dashboards, Phase 6)
 $router->get('/dashboard', function() {
     // Redirect to the caller's role dashboard (guessing from session on the '/' lander
@@ -85,14 +102,8 @@ $router->get('/admin/dashboard', 'DashboardController@admin');
 $router->get('/pharmacist/dashboard', 'DashboardController@pharmacist');
 $router->get('/cashier/dashboard', 'DashboardController@cashier');
 
-// Customer dashboard stays a placeholder until Phase 7 (online ordering).
-use App\Middleware\AuthMiddleware;
-
-$router->get('/customer/dashboard', function() {
-    AuthMiddleware::guard();
-    echo "<h1>Customer Dashboard</h1>";
-    echo "<p>Customer dashboard view (online ordering portal in Phase 7).</p>";
-});
+// Customer dashboard (online ordering portal, Phase 7)
+$router->get('/customer/dashboard', 'CustomerDashboardController@index');
 
 // Report Routes (reports:view; read-only)
 $router->get('/reports', 'ReportController@index');
