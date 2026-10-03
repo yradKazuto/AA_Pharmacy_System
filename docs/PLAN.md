@@ -118,7 +118,7 @@ Default admin login: `admin` / `Admin@1234` (COMPANY_ID: `ADMIN-0001`)
 | 4 — Suppliers/Purchasing | ✅ Done + Pushed | `dev` | Suppliers CRUD, PurchaseOrders + line items, reorder suggestions (recommend-only), whole-PO receiving in ONE transaction; 31-check tests |
 | 5 — POS | ✅ Done + Pushed | `dev` | POS terminal, FEFO batch deduction, sales + sale_items (batch per line), cash/GCash/card, change, void-restores-stock; sale + deductions in ONE transaction; 34-check tests |
 | 6 — Reports/Dashboard | ✅ Done + Pushed | `dev` | Per-role dashboards (admin/pharmacist/cashier) with KPIs + Chart.js weekly trend; sales report, inventory valuation, movement log (all from actual data, rule 10); 14-check tests |
-| 7 — Online Ordering | ✅ Done + Pushed | `dev` | Customer portal: catalog, localStorage cart → checkout, COD; status flow pending_review → approved → fulfilled → delivered (approve/reject/fulfill/deliver/cancel); Rx items force pharmacist review (rule 8); fulfillment deducts stock FEFO + records a linked sale in ONE transaction (rules 4, 5, 10); customers see only their own orders (rule 9); 35-check tests; fixed `pending_review → rejected` transition bug |
+| 7 — Online Ordering | ✅ Done + Pushed | `4529532` on `main` | Customer portal: catalog, localStorage cart → checkout (COD), my orders + detail; status flow pending_review → approved → fulfilled → delivered with approve/reject/fulfill/deliver/cancel; Rx items force pharmacist review (rule 8); fulfillment deducts stock FEFO + records a linked sale in ONE transaction (rules 4, 5, 10); customers see only their own orders (rule 9); 35-check tests; fixed `pending_review → rejected` transition bug |
 | 8 — Integration/Security | ⬜ Not started | — | — |
 
 ---
